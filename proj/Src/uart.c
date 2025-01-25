@@ -8,7 +8,8 @@
 #define EnterCritical()	__disable_irq()
 #define ExitCritical()  __enable_irq()
 
-uint8_t s_uart_rx_buffer[2][128];
+uint8_t s_uart_rx0_buffer[1029];
+uint8_t s_uart_rx1_buffer[16];
 
 static fifo_st s_uart_fifo_dev[2]=
 {
@@ -16,15 +17,15 @@ static fifo_st s_uart_fifo_dev[2]=
 	 .in = 0,
 	 .len = 0,
 	 .out = 0,
-	 .buffer = s_uart_rx_buffer[0],
-	 .buffer_len = sizeof(s_uart_rx_buffer[0]),
+	 .buffer = s_uart_rx0_buffer,
+	 .buffer_len = sizeof(s_uart_rx0_buffer),
 	},
 	{
 	 .in = 0,
 	 .len = 0,
 	 .out = 0,
-	 .buffer = s_uart_rx_buffer[1],
-	 .buffer_len = sizeof(s_uart_rx_buffer[1]),
+	 .buffer = s_uart_rx1_buffer,
+	 .buffer_len = sizeof(s_uart_rx1_buffer),
 	}
 };
 

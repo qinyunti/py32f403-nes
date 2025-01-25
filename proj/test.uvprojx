@@ -494,6 +494,41 @@
               <FileType>5</FileType>
               <FilePath>.\Src\flash_itf.h</FilePath>
             </File>
+            <File>
+              <FileName>global.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Src\global.h</FilePath>
+            </File>
+            <File>
+              <FileName>md5.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\md5.c</FilePath>
+            </File>
+            <File>
+              <FileName>md5.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Src\md5.h</FilePath>
+            </File>
+            <File>
+              <FileName>xmodem.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\xmodem.c</FilePath>
+            </File>
+            <File>
+              <FileName>xmodem.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Src\xmodem.h</FilePath>
+            </File>
+            <File>
+              <FileName>ymodem.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\ymodem.c</FilePath>
+            </File>
+            <File>
+              <FileName>ymodem.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Src\ymodem.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

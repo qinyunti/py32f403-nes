@@ -47,6 +47,46 @@ static void fs_init(void)
 		} 
 }
 
+
+void app_fatfs_mkfs(char* path)
+{
+    FRESULT res;        /* API result code */
+		f_unmount(path);
+    res = f_mkfs("2:",0,work,sizeof(work));
+    if(res == 0)
+    {
+			xprintf("mkfs ok\r\n");
+			if(FR_OK == f_mount (&fs, path, 1))
+			{
+				xprintf("mount ok\r\n");
+			}
+			else
+			{
+				xprintf("mount err %d\r\n",res);
+			}
+    }
+    else
+    {
+			xprintf("mkfs err %d\r\n",res);
+    }
+}
+
+
+void app_fatfs_mount(char* path)
+{
+    FRESULT res;        /* API result code */
+		res = f_unmount(path);
+
+		if(FR_OK == (res = f_mount (&fs, path, 1)))
+		{
+				xprintf("mount ok\r\n");
+		}
+		else
+		{
+				xprintf("mount err %d\r\n",res);
+		}
+}
+
 static void clk_out(void)
 {
 	/* PA8 AF0 MCO*/
