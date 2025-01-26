@@ -81,8 +81,68 @@ void spi_init(int id, uint32_t baud, int mode)
 			HAL_SPI_Init(&hspi);
 			LL_SPI_Enable(SPI1);
 	}else if(id == 1){
-	
-	
+		/* PB12  NSS1   LCD
+		 * PB13   SCK  AF3   SPI2 APB1
+		 * PB14   MISO AF3
+		 * PB15   MOSI AF3
+		 */
+			GPIO_InitTypeDef  GPIO_InitStruct;       
+			__HAL_RCC_GPIOB_CLK_ENABLE();   
+			__HAL_RCC_SPI2_CLK_ENABLE();
+		
+			GPIO_InitStruct.Pin = GPIO_PIN_12;
+			GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;              
+			GPIO_InitStruct.Pull = GPIO_PULLUP;                    
+			GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;    
+			HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);  
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_SET);
+
+			GPIO_InitStruct.Pin = GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15;
+			GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;              
+			GPIO_InitStruct.Pull = GPIO_PULLUP;                    
+			GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;    
+			GPIO_InitStruct.Alternate = GPIO_AF3_SPI1;   
+			HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);  
+		
+			SPI_HandleTypeDef hspi;
+			hspi.Instance = SPI2;
+			uint32_t clk = HAL_RCC_GetPCLK1Freq();
+			uint32_t div = clk/baud;
+			if(div<=2){
+				hspi.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+			}else if(div<=4){
+				hspi.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
+			}else if(div<=8){
+				hspi.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
+			}else if(div<=16){
+				hspi.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
+			}else if(div<=32){
+				hspi.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
+			}else if(div<=64){
+				hspi.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
+			}else if(div<=128){
+				hspi.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_128;
+			}else{
+				hspi.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
+			}
+			if(mode & 0x01){
+				hspi.Init.CLKPhase = SPI_PHASE_2EDGE;
+			}else{
+				hspi.Init.CLKPhase = SPI_PHASE_1EDGE;
+			}
+			if(mode & 0x02){
+				hspi.Init.CLKPolarity = SPI_POLARITY_HIGH;
+			}else{
+				hspi.Init.CLKPolarity = SPI_POLARITY_LOW;
+			}
+			hspi.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+			hspi.Init.CRCPolynomial = 0;
+			hspi.Init.DataSize = SPI_DATASIZE_8BIT;
+			hspi.Init.Direction = SPI_DIRECTION_2LINES;
+			hspi.Init.FirstBit = SPI_FIRSTBIT_MSB;
+			hspi.Init.Mode = SPI_MODE_MASTER;
+			HAL_SPI_Init(&hspi);
+			LL_SPI_Enable(SPI2);
 	}
 }
 
@@ -124,8 +184,32 @@ uint32_t spi_trans(int id, int cs, uint8_t* tx_buffer, uint8_t* rx_buffer, uint3
 			}
 		}
 	}else if(id == 1){
-	
-	
+		if(cs == 0){
+			HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_RESET);
+		}else if(cs == 1){
+
+		}
+
+		for(uint32_t i=0; i<len; i++){
+			while(LL_SPI_IsActiveFlag_TXE(SPI2) == 0);
+			if(tx_buffer != (uint8_t*)0){
+				LL_SPI_TransmitData8(SPI2, tx_buffer[i]);
+			}else{
+				LL_SPI_TransmitData8(SPI2, 0xFF);
+			}
+			while(LL_SPI_IsActiveFlag_RXNE(SPI2) == 0);
+			rx = LL_SPI_ReceiveData8(SPI2);
+			if(rx_buffer != (uint8_t*)0){
+				rx_buffer[i] = rx;
+			}
+		}
+		
+		if(flag){
+			if(cs == 0){
+				HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_SET);
+			}else if(cs == 1){
+			}
+		}
 	}
 
 	xSemaphoreGiveRecursive(s_spi_mutex[id]);

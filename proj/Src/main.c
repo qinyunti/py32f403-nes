@@ -12,7 +12,7 @@
 #include "shell_func.h"
 #include "flash_itf.h"
 #include "ff.h"
-
+#include "st7789_test.h"
 
 static FATFS fs;             /* Filesystem object */
 static BYTE work[FF_MAX_SS]; /* Work area (larger is better for processing time) */
@@ -87,6 +87,7 @@ void app_fatfs_mount(char* path)
 		}
 }
 
+#if 0
 static void clk_out(void)
 {
 	/* PA8 AF0 MCO*/
@@ -103,6 +104,7 @@ static void clk_out(void)
 	HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_SYSCLK, RCC_MCODIV_1);
 	
 }
+#endif
 
 static void clk_init(void)
 {
@@ -154,6 +156,7 @@ static void shell_task(void *arg)
     (void)arg;
 	  xprintf("shell task start.\r\n"); 
 	  fs_init();
+	  st7789_test();
     while(1)
     {
         shell_exec();
@@ -185,10 +188,11 @@ int main(void)
 {
 	HAL_Init();
 	clk_init();
-	clk_out();
+	//clk_out();
 	uart_init(0,115200);
 	uart_init(1,115200);
 	spi_init(0, 36000000ul, 0);
+	spi_init(1, 72000000ul, 0);
 	flash_itf_init(); 
 
 	shell_task_init();

@@ -314,7 +314,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>1</Optim>
+            <Optim>6</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -528,6 +528,36 @@
               <FileName>ymodem.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\Src\ymodem.h</FilePath>
+            </File>
+            <File>
+              <FileName>st7789.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\st7789.c</FilePath>
+            </File>
+            <File>
+              <FileName>st7789.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Src\st7789.h</FilePath>
+            </File>
+            <File>
+              <FileName>st7789_itf.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\st7789_itf.c</FilePath>
+            </File>
+            <File>
+              <FileName>st7789_itf.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Src\st7789_itf.h</FilePath>
+            </File>
+            <File>
+              <FileName>st7789_test.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\st7789_test.c</FilePath>
+            </File>
+            <File>
+              <FileName>st7789_test.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Src\st7789_test.h</FilePath>
             </File>
           </Files>
         </Group>
