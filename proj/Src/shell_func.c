@@ -11,6 +11,7 @@
 #include "ymodem.h"
 #include "md5.h"
 #include "uart.h"
+#include "nes_main.h"
 
 static void helpfunc(uint8_t* param);
 static void spirxfunc(uint8_t* param);
@@ -41,6 +42,11 @@ static void printmemfunc(uint8_t* param);
 static void setmemfunc(uint8_t* param);
 static void rxmemfunc(uint8_t* param);
 static void sxmemfunc(uint8_t* param);
+
+static void nesstartfunc(uint8_t* param);
+static void nesstopfunc(uint8_t* param);
+
+
 
 /**
  * 最后一行必须为0,用于结束判断
@@ -78,6 +84,9 @@ const shell_cmd_cfg g_shell_cmd_list_ast[ ] =
   { (uint8_t*)"setmem",       setmemfunc,       (uint8_t*)"setmem addr[hex] val[hex]"}, 
   { (uint8_t*)"rxmem",        rxmemfunc,        (uint8_t*)"rxmem addr[hex] len"}, 
   { (uint8_t*)"sxmem",        sxmemfunc,        (uint8_t*)"sxmem addr[hex] len"}, 
+	
+  { (uint8_t*)"nesstart",     nesstartfunc,     (uint8_t*)"nesstart filename"},
+  { (uint8_t*)"nesstop",      nesstopfunc,      (uint8_t*)"nesstop"}, 
 	
   { (uint8_t*)0,		          0 ,               0},
 };
@@ -1355,4 +1364,22 @@ static void sxmemfunc(uint8_t* param)
     while((res = xmodem_tx()) == 0);
     xprintf("res:%d\r\n",res);
   }
+}
+
+extern void nes_task_init(char* name);
+extern void nes_task_deinit(void);
+void nesstartfunc(uint8_t* param)
+{
+  (void)param;
+  char name[64];
+  if(1 == sscanf((const char*)param, "%*s %s", name))
+  {
+    nes_task_init(name);
+  }
+}
+
+void nesstopfunc(uint8_t* param)
+{
+  (void)param;
+  nes_task_deinit();
 }

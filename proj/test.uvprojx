@@ -190,7 +190,7 @@
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
-            <useUlib>1</useUlib>
+            <useUlib>0</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
             <nSecure>0</nSecure>
@@ -323,7 +323,7 @@
             <PlainCh>0</PlainCh>
             <Ropi>0</Ropi>
             <Rwpi>0</Rwpi>
-            <wLevel>2</wLevel>
+            <wLevel>3</wLevel>
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
             <uC99>1</uC99>
@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>PY32F403xD,HSE_VALUE=16000000ul,USE_FULL_LL_DRIVER,__TARGET_FPU_VFP</Define>
               <Undefine></Undefine>
-              <IncludePath>.\PY32F403_HAL_Driver\Inc;.\Src;.\FreeRTOS-Kernel\include;.\FreeRTOS-Kernel;.\ff15a\source</IncludePath>
+              <IncludePath>.\PY32F403_HAL_Driver\Inc;.\Src;.\FreeRTOS-Kernel\include;.\FreeRTOS-Kernel;.\ff15a\source;.\InfoNES\src;.\LiteNES;.\nes</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -558,6 +558,16 @@
               <FileName>st7789_test.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\Src\st7789_test.h</FilePath>
+            </File>
+            <File>
+              <FileName>psram.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Src\psram.c</FilePath>
+            </File>
+            <File>
+              <FileName>psram.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Src\psram.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -1223,6 +1233,41 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>nessrc</GroupName>
+          <Files>
+            <File>
+              <FileName>6502.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\NES\6502.s</FilePath>
+            </File>
+            <File>
+              <FileName>cart.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\NES\cart.s</FilePath>
+            </File>
+            <File>
+              <FileName>nes_apu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\NES\nes_apu.c</FilePath>
+            </File>
+            <File>
+              <FileName>nes_main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\NES\nes_main.c</FilePath>
+            </File>
+            <File>
+              <FileName>nes_mapper.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\NES\nes_mapper.c</FilePath>
+            </File>
+            <File>
+              <FileName>nes_ppu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\NES\nes_ppu.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>::CMSIS</GroupName>
         </Group>
       </Groups>
@@ -1254,5 +1299,14 @@
       </file>
     </files>
   </RTE>
+
+  <LayerInfo>
+    <Layers>
+      <Layer>
+        <LayName>test</LayName>
+        <LayPrjMark>1</LayPrjMark>
+      </Layer>
+    </Layers>
+  </LayerInfo>
 
 </Project>

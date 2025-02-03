@@ -16,7 +16,7 @@ typedef struct
 static st7789_cmd_st s_st7789_cmd_init_list[]=
 {
     {ST7789_CMD_SLPOUT,{0   },0,120},  /**< SLPOUT (11h): Sleep Out */
-    {ST7789_CMD_MADCTL,{0   },1,0},    /**< MADCTL (36h): Memory Data Access Control */
+    {ST7789_CMD_MADCTL,{0x08   },1,0},    /**< MADCTL (36h): Memory Data Access Control */
     {ST7789_CMD_COLMOD,{0x55},1,0},    /**< 16bit/pixel 65K         */
     //{ST7789_CMD_PORCTRL,{0x0C,0x0C,0x00,0x33,0x33},5,0},  /**< 默认值 */
     //{ST7789_CMD_GCTRL,{0x35},1,0},                        /**< 默认值 */
@@ -198,6 +198,12 @@ int st7789_init(st7789_dev_st* dev)
         }
     }
 
+		uint16_t tmp = 0x00;
+		st7789_set_windows(dev, 0, 240-1, 0, 320-1);
+    st7789_write_cmd(dev,ST7789_CMD_RAMWR);
+		for(int i=0; i<240*320; i++){
+			st7789_write_data(dev, (uint8_t*)(&tmp), 2);
+		}
     return 0;
 }
 

@@ -58,7 +58,7 @@ static void rgb_test_direct(void)
             st7789_itf_set_pixel_direct(x, y, 0x07E0);
         }
     }
-		vTaskDelay((1*1000/configTICK_RATE_HZ));
+		vTaskDelay((1000*1000/configTICK_RATE_HZ));
 
     for(int x=0;x<240;x++)
     {
@@ -67,7 +67,7 @@ static void rgb_test_direct(void)
             st7789_itf_set_pixel_direct(x, y, 0x001F);
         }
     }
-		vTaskDelay((1*1000/configTICK_RATE_HZ));
+		vTaskDelay((1000*1000/configTICK_RATE_HZ));
 }
 
 int st7789_test(void)

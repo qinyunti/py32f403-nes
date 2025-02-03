@@ -13,6 +13,30 @@
 #include "flash_itf.h"
 #include "ff.h"
 #include "st7789_test.h"
+#include "st7789_itf.h"
+#include "psram.h"
+#include "nes_main.h"
+char nesname[64];
+
+static void nes_task(void *arg)
+{
+    nes_main(arg);
+    return;
+}
+
+void nes_task_init(char* name)
+{
+	TaskHandle_t xHandle;
+  xprintf("nes %s\r\n",name);
+  memset(nesname,0,sizeof(nesname));
+  memcpy(nesname,name,strlen(name));
+	xTaskCreate( nes_task, "nes", 512, nesname, 1, &xHandle ); 
+}
+
+void nes_task_deinit(void)
+{
+    //nes_exit();
+}
 
 static FATFS fs;             /* Filesystem object */
 static BYTE work[FF_MAX_SS]; /* Work area (larger is better for processing time) */
@@ -128,7 +152,7 @@ static void clk_init(void)
 	RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 	RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_SYSCLK;
 	RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-	HAL_RCC_ClockConfig(&RCC_ClkInitStruct, 6);
+	HAL_RCC_ClockConfig(&RCC_ClkInitStruct, 7);
 	
 	SystemCoreClockUpdate();
 }
@@ -156,7 +180,20 @@ static void shell_task(void *arg)
     (void)arg;
 	  xprintf("shell task start.\r\n"); 
 	  fs_init();
-	  st7789_test();
+	  //st7789_test();
+	  st7789_itf_init();
+	
+		psram_init(36000000ul);
+	
+	  uint8_t id[8];
+	  memset(id,0,sizeof(id));
+	  psram_read_id(id);
+	  for(int i=0; i<8; i++)
+		{
+			xprintf("%02x ",id[i]);
+		}
+		xprintf("\r\n");
+		//psram_test();
     while(1)
     {
         shell_exec();
