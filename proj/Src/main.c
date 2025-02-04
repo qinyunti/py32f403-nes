@@ -194,6 +194,10 @@ static void shell_task(void *arg)
 		}
 		xprintf("\r\n");
 		//psram_test();
+		
+		//nes_task_init("0:/tank.nes");
+		//nes_task_init("0:/mario.nes");
+		nes_task_init("0:/jtxz.nes");
     while(1)
     {
         shell_exec();

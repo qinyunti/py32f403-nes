@@ -11,6 +11,7 @@
 #include "FreeRTOS.h"
 #include "xprintf.h"
 #include "ff.h"
+#include "key.h"
 
 int MapperNo;			//map编号
 int NES_scanline;		//nes扫描线
@@ -37,7 +38,24 @@ u8* VROM_tiles;
 u8* romfile;							//nes文件指针,指向整个nes文件的起始地址.
 //////////////////////////////////////////////////////////////////////////////////////
 
- 
+void* nes_malloc(uint32_t size)
+{
+	void* p = pvPortMalloc(size);
+	if(p == (void*)0){
+		xprintf("nes malloc %d err\r\n",size);
+	}else{
+		xprintf("nes malloc %d ok\r\n",size);
+	}
+	return p;
+}
+
+void nes_free(void* p)
+{
+	vPortFree(p);
+	xprintf("nes free\r\n");
+}
+
+
 //加载ROM
 //返回值:0,成功
 //    1,内存错误
@@ -62,14 +80,14 @@ u8 nes_load_rom(void)
 #if	NES_RAM_SPEED==1	//1:内存占用小 0:速度快	 
 			VROM_tiles=VROM_banks;	 
 #else  
-			VROM_tiles=pvPortMalloc(RomHeader->num_8k_vrom_banks*8*1024);//这里可能申请多达1MB内存!!!
+			VROM_tiles=nes_malloc(RomHeader->num_8k_vrom_banks*8*1024);//这里可能申请多达1MB内存!!!
 			if(VROM_tiles==0)VROM_tiles=VROM_banks;//内存不够用的情况下,尝试VROM_titles与VROM_banks共用内存			
 			compile(RomHeader->num_8k_vrom_banks*8*1024/16,VROM_banks,VROM_tiles);  
 #endif	
 		}else 
 		{
-			VROM_banks=pvPortMalloc(8*1024);
-			VROM_tiles=pvPortMalloc(8*1024);
+			VROM_banks=nes_malloc(8*1024);
+			VROM_tiles=nes_malloc(8*1024);
 			if(!VROM_banks||!VROM_tiles)res=1;
 		}  	
 		VROM_1K_SIZE = RomHeader->num_8k_vrom_banks * 8;
@@ -87,7 +105,7 @@ u8 nes_load_rom(void)
 			switch(MapperNo)
 			{
 				case 1:  
-					MAP1=pvPortMalloc(sizeof(Mapper1Res)); 
+					MAP1=nes_malloc(sizeof(Mapper1Res)); 
 					if(!MAP1)res=1;
 					break;
 				case 4:  
@@ -106,7 +124,7 @@ u8 nes_load_rom(void)
 				case 69:
 				case 85:
 				case 189:
-					MAPx=pvPortMalloc(sizeof(MapperCommRes)); 
+					MAPx=nes_malloc(sizeof(MapperCommRes)); 
 					if(!MAPx)res=1;
 					break;  
 				default:
@@ -120,22 +138,22 @@ u8 nes_load_rom(void)
 void nes_sram_free(void)
 { 
 	u8 i;
-	vPortFree(NES_RAM);	
-	vPortFree(NES_SRAM);	
-	vPortFree(RomHeader);	
-	vPortFree(NES_Mapper);
-	vPortFree(spr_ram);		
-	vPortFree(ppu);	
-	//vPortFree(apu);	
+	nes_free(NES_RAM);	
+	nes_free(NES_SRAM);	
+	nes_free(RomHeader);	
+	nes_free(NES_Mapper);
+	nes_free(spr_ram);		
+	nes_free(ppu);	
+	//nes_free(apu);	
 	if((VROM_tiles!=VROM_banks)&&VROM_banks&&VROM_tiles)//如果分别为VROM_banks和VROM_tiles申请了内存,则释放
 	{
-		vPortFree(VROM_banks);
-		vPortFree(VROM_tiles);		 
+		nes_free(VROM_banks);
+		nes_free(VROM_tiles);		 
 	}
 	switch (MapperNo)//释放map内存
 	{
 		case 1: 			//释放内存
-			vPortFree(MAP1);
+			nes_free(MAP1);
 			break;	 	
 		case 4: 
 		case 6: 
@@ -153,7 +171,7 @@ void nes_sram_free(void)
 		case 69:
 		case 85:
 		case 189:
-			vPortFree(MAPx);break;	 		//释放内存 
+			nes_free(MAPx);break;	 		//释放内存 
 		default:break; 
 	}
 	
@@ -179,15 +197,15 @@ u8 nes_sram_malloc(void)
 	u16 i=0;
 	//for(i=0;i<64;i++)//为NES_RAM,查找1024对齐的内存
 	//{
-	//	NES_SRAM=pvPortMalloc(i*32);
-	NES_RAM=(uint8_t*)((uint32_t)pvPortMalloc(0X800+0x400) & 0xFFFFFC00);	//申请2K字节,必须1024字节对齐
+	//	NES_SRAM=nes_malloc(i*32);
+	NES_RAM=(uint8_t*)((uint32_t)nes_malloc(0X800+0x400) & 0xFFFFFC00);	//申请2K字节,必须1024字节对齐
 	//	if((u32)NES_RAM%1024)			//不是1024字节对齐
 	//	{
-	//		vPortFree(NES_RAM);		//释放内存,然后重新尝试分配
-	//		vPortFree(NES_SRAM); 
+	//		nes_free(NES_RAM);		//释放内存,然后重新尝试分配
+	//		nes_free(NES_SRAM); 
 	//	}else 
 	//	{
-	//		vPortFree(NES_SRAM); 	//释放内存
+	//		nes_free(NES_SRAM); 	//释放内存
 	//		break;
 	//	}
 	//}
@@ -195,23 +213,23 @@ u8 nes_sram_malloc(void)
 	//	xprintf("NES malloc i==64\n");
 	//	return 1;
 	//}
- 	NES_SRAM=pvPortMalloc(0X2000);
+ 	NES_SRAM=nes_malloc(0X2000);
 	if(NES_SRAM==0){
 	   xprintf("NES malloc NES_SRAM\n");
 	}
-	RomHeader=pvPortMalloc(sizeof(NES_header));
+	RomHeader=nes_malloc(sizeof(NES_header));
 	if(RomHeader==0){
 	   xprintf("NES malloc RomHeader\n");
 	}
-	NES_Mapper=pvPortMalloc(sizeof(MAPPER));
+	NES_Mapper=nes_malloc(sizeof(MAPPER));
 	if(NES_Mapper==0){
 	   xprintf("NES malloc NES_Mapper\n");
 	}
-	spr_ram=pvPortMalloc(0X100);		
+	spr_ram=nes_malloc(0X100);		
 	if(spr_ram==0){
 	   xprintf("NES malloc spr_ram\n");
 	}
-	ppu=pvPortMalloc(sizeof(ppu_data));  
+	ppu=nes_malloc(sizeof(ppu_data));  
 	if(ppu==0){
 	   xprintf("NES malloc ppu\n");
 	}
@@ -243,22 +261,22 @@ u8 nes_load(const char* pname)
 	FIL *file; 
 	UINT br;
 	u8 res=0;   
-	file=pvPortMalloc(sizeof(FIL));  
+	file=nes_malloc(sizeof(FIL));  
 	if(file==0)return 1;						//内存申请失败.  
 	res=f_open(file,(char*)pname,FA_READ);
 	if(res!=FR_OK)	//打开文件失败
 	{
-		vPortFree(file);
+		nes_free(file);
 		return 2;
 	}	 
-	romfile=pvPortMalloc(f_size(file));			//申请游戏rom空间,等于nes文件大小 
+	romfile=nes_malloc(f_size(file));			//申请游戏rom空间,等于nes文件大小 
  	if(romfile==0){
 	   xprintf("NES malloc romfile\n");
 	}
 	memset(romfile,0,f_size(file));
 	f_read(file,romfile,f_size(file),&br);	//读取nes文件
 	f_close(file);
-	vPortFree(file);//释放内存
+	nes_free(file);//释放内存
 	return res;
 } 
 
@@ -301,9 +319,40 @@ void nes_set_window(void)
 //extern void KEYBRD_FCPAD_Decode(uint8_t *fcbuf,uint8_t mode);
 //读取游戏手柄数据
 void nes_get_gamepadval(void)
-{  
-	//PADdata=JOYPAD_Read();
-	//PADdata1=JOYPAD_Irda_Read();				//没有手柄2,故不采用. 
+{ 
+	uint8_t key;
+	uint8_t data = 0;
+  /* key输入值  U D  L R    4        5      6  7     
+	 *            3 1  2 0    SELECT   START  B  A
+	 * 转为PADdata:[7:0]右7 左6 下5 上4 Start3 Select2 B1 A0	 
+	 */
+	key = key_get();
+	if((key & ((uint8_t)1<<0)) == 0){
+		data |= ((uint8_t)1<<7);
+	}
+	if((key & ((uint8_t)1<<1)) == 0){
+		data |= ((uint8_t)1<<5);
+	}
+	if((key & ((uint8_t)1<<2)) == 0){
+		data |= ((uint8_t)1<<6);
+	}
+	if((key & ((uint8_t)1<<3)) == 0){
+		data |= ((uint8_t)1<<4);
+	}	
+	if((key & ((uint8_t)1<<4)) == 0){
+		data |= ((uint8_t)1<<2);
+	}
+	if((key & ((uint8_t)1<<5)) == 0){
+		data |= ((uint8_t)1<<3);
+	}
+	if((key & ((uint8_t)1<<6)) == 0){
+		data |= ((uint8_t)1<<1);
+	}
+	if((key & ((uint8_t)1<<7)) == 0){
+		data |= ((uint8_t)1<<0);
+	}
+	PADdata=data;
+	PADdata1=0;				//没有手柄2,故不采用. 
 }  
 
 //nes模拟器主循环

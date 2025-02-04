@@ -38,6 +38,8 @@ void USART1_IRQHandler(void)
 {
 	uint8_t ch;
 	ch = LL_USART_ReceiveData8(USART1);
+	LL_USART_ClearFlag_ORE(USART1);
+	LL_USART_ClearFlag_IDLE(USART1);
 	uart_rx_cb(0, &ch, 1);
 }
 
@@ -45,6 +47,8 @@ void USART3_IRQHandler(void)
 {
 	uint8_t ch;
 	ch = LL_USART_ReceiveData8(USART3);
+	LL_USART_ClearFlag_ORE(USART3);
+	LL_USART_ClearFlag_IDLE(USART3);	
 	uart_rx_cb(1, &ch, 1);
 }
 
